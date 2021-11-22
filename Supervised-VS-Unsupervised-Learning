@@ -1,0 +1,24 @@
+
+'''
+    What is machine learning?
+        Algorithms that can learn from observational data, and can make predictions based on it.
+    
+    Different types of machine learning:
+        1- Unsupervised Learning
+            Not given any answers to learn from it and it must make sense of the data just given the observations
+            You are looking for latent variables so unsupervised learning can tease out them
+            By clustering users based on their information and behavior, unsupervised learning can tease out groups that don't conform your predisposed stereotypes.
+                
+        2- Supervised Learning
+            The algorithm learns from data with the correct answers. The model created is used to predict answer for new values.
+            If you have enough training data, split them to a training set and test set. They must be selected randomly.
+            Train / Test is not infallible.
+            overfitting can still happen.
+                
+    K-fold cross validation against overfitting
+        - split your data into K randomly-assigned segments
+        - Reserve one segment as your test data
+        - Train on each of the remaining K-1 segments and measure their perdormance against the test set
+        - Take the average of the K-1 r-squared scores
+        
+'''
