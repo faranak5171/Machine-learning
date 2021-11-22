@@ -1,0 +1,40 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import sklearn.metrics as met
+
+# Creating some data set (Polynomial Regression) to build a model
+np.random.seed(0)
+pageSpeed = np.random.normal(3.0, 1.0 , 100)
+purchaseAmount = np.random.normal(50.0, 30.0, 100) / pageSpeed
+
+
+#--------------------- Split the data in two- 80% and 20%
+trainX = pageSpeed[:80]
+testX = pageSpeed[80:]
+
+trainY = purchaseAmount[:80]
+testY = purchaseAmount[80:]
+
+#plt.scatter(trainX, trainY) 
+#plt.scatter(testX, testY)
+
+#--------------------- Fit an 8th-degree polynomial to this data, certainly overfitting
+x = np.array(trainX)
+y = np.array(trainY)
+curve = np.polyfit(x, y , 8)
+predcFunc = np.poly1d(curve)
+
+#---------------------- Plot our polynomial regression
+xp = np.linspace(0 , 7 , 100)
+plt.scatter(x, y)
+plt.plot(xp, predcFunc(xp), c='r')
+axes = plt.axes()
+axes.set_xlim([0, 7])
+axes.set_ylim([0, 200])
+plt.show()
+
+#---------------------- Measure r-squared, Shows that our model isn't good
+r2 = met.r2_score(trainY, predcFunc(trainX))
+print("r-squared for train data is ",r2, "which is so low")
+r2 = met.r2_score(testY, predcFunc(testX))
+print("r-squared for test data is ",r2, "which is so low")
