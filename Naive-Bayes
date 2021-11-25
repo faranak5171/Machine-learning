@@ -1,0 +1,84 @@
+'''
+    Bayesian methods
+    
+    Using Bayes' Theorem for machine learning: 
+        p(A|B) = P(A)P(B|A) / P(B)
+    
+    Spam classifier:
+        - Constract p(Spam | word) for every meaningful word like "free"
+            P(Spam | Free) = P(Spam)P(Free|Spam) / P(Free)
+        - Multiply these together when analyzing a new mail
+        - Assumes the presence of different words are independent of each other (Naive bayes)
+        - scikit-learn do this. It has a feature called CountVectorizer, split up an email to all of component words and process these words individually.
+            It has a MultinomialNB function (NB, naive bayes)
+            Ham means not spam.
+    
+    
+'''
+import os
+import io
+import numpy
+from pandas import DataFrame
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.feature_extraction.text import CountVectorizer
+
+
+# os provides functions for interacting with the operating system
+#os.walk(top[, topdown = True[, onerror = None[, followlinks = False]]]) and returns 3-tuples(dirpath, dirnames[inside folders], filenames)
+#os.path.join() concatenates various path components with exactly one directory separator (‘/’)
+#io rovides Python’s main facilities for dealing with various types of I/O
+#io.open(filename,mode) mode='r' (only read file) mode='r+' (read and change)
+
+def readFiles(path):
+    for root, _, filenames in os.walk(path):
+        for filename in filenames:
+            path = os.path.join(root, filename)
+            filecontext = io.open(path, 'r', encoding='Latin1')
+            linesLst = []
+            inBody = False
+            for word in filecontext:
+                if inBody:
+                    linesLst.append(word)
+                elif word =='\n':
+                    inBody = True
+            filecontext.close()
+            message = '\n'.join(linesLst)
+            yield path, message
+            
+
+def dataFrameFromDirectory(path, classification):
+    rows = []
+    index = []
+    for filename, message in readFiles(path):
+        rows.append({'message': message, 'class': classification})
+        index.append(filename)
+
+    return DataFrame(rows, index=index)
+
+data = DataFrame({'message': [], 'class': []})
+
+data = data.append(dataFrameFromDirectory('c:/Users/Faranak/emails/spam', 'spam'))
+data = data.append(dataFrameFromDirectory('c:/Users/Faranak/emails/ham', 'ham'))
+
+# Look at that DataFrame
+data.head()
+
+
+
+#-------------------------------------------------------- Fit Model 
+# use CountVectorizer to split up each message into its list of words.(fit_transform : convert all the words into numbers and count how much each words occur) 
+vectorizer = CountVectorizer()
+countsData = vectorizer.fit_transform(data['message'].values)
+
+# Then throw that into a MultinomialNB classifier.
+# Build a multinomialNB classifier, needs two inputs(data trainning on, targets)
+classifier = MultinomialNB()
+classifier.fit(countsData, data['class'].values)
+
+
+
+#-------------------------------------------------------- Test Model
+examples = ['Free Viagra now!!!', "Hi Bob, how about a game of golf tomorrow?"]
+example_count = vectorizer.transform(examples)
+predc = classifier.predict(example_count)
+print(predc)
