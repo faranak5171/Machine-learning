@@ -1,0 +1,21 @@
+'''
+    K-means clustering:
+        an unsupervised learning techniques
+        Attempts to split data into K groups that are closest to K centroids.
+        its algorithm:
+            1- Randomly pick K ccentroids(k-means)
+            2- Assign each data point to the centroid it's closet to
+            3- Recompute the centroids based on the average positions of each centroid's points
+            3- Iterate until points stop changing assignments to centroids
+        If you want to predict the cluster for new points, just find the centroid they're closest to.
+        
+    K-means clustering Gotchas:
+        - Choosing K
+            start off low value, try increasing K values, until you stop getting large reduction in squared error
+        - Avoid local minima
+            The random choice of initial centroids can yield different results and get stuck in local minima instead of global clustering.
+            Run it a few times just to make sure your initial results are not wacky
+        - Labeling the clusters
+            it's up to you to dig into the data and try to determine that
+            
+'''
