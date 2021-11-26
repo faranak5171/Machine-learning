@@ -19,3 +19,40 @@
             it's up to you to dig into the data and try to determine that
             
 '''
+
+
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import scale
+import matplotlib.pyplot as plt
+
+#------------------------------------------------------------------- Create fake income/age clusters for N people in k clusters
+def createClusterFunc(n ,k):
+    np.random.seed(10)
+    pointsPerClus = float(n) / k
+    dataset = []
+    for i in range(k):
+        incomeCentroid = np.random.uniform(20000.0, 200000.0)
+        ageCentroid = np.random.uniform(20.0 ,70.0)
+        for j in range(int(pointsPerClus)):
+            dataset.append([np.random.normal(incomeCentroid, 10000), np.random.normal(ageCentroid, 2.0)])
+        
+    dataset = np.array(dataset)
+    return dataset
+    
+    
+data = createClusterFunc(100, 5) 
+
+   
+#-------------------------------------------------------------------- Create Model
+model = KMeans(n_clusters=5)
+#scaling the data to normalize it.
+model = model.fit(scale(data))
+
+#print("Clusters of each data points ",model.labels_)
+incomeX = data[:,0]
+ageY = data[:,1]
+# different color for different clusters
+color = model.labels_.astype(np.float)
+plt.scatter(incomeX, ageY, c=color)
+plt.show()
