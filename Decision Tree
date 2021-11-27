@@ -1,0 +1,65 @@
+'''
+    Entropy: 
+        A measure of a data set's disorder
+        The entropy is 0 if all of the classes in data set are the same.
+        The entropy is high if they're all different.
+        
+    Computing entropy:
+        H(s) = -p1 lnp1 - ... -pn lnn
+            p sub i, represents the proportion of the data labeled for class i.
+            
+    Decision Trees:
+        Construct a flowchart to help you decide a classification for something with machine learning.
+        Based on a supervised learning
+        
+    How Decision Trees work ?
+        At each step, find the attribute we can use to partiotion the data set to minimize the entropy of the data at the next step.
+        ID3 is a term for this simple algorithm.
+        It's a greedy algorithm - as it goes down the tree it just picks the decision that reduce entropy at that point
+        
+    Problem :
+        susceptible to overfitting
+            To solve that, use Random Forests technique.
+            Random Forests do :
+                -Construct several decision trees on different samples of training datasets and let them vote on the final classification.
+                 Bootstrap aggregating or bagging : Randomly re-sample the input data for each tree
+                 -restrict the number of attributes at each stage to minimize the entropy so that randomly choose these attributes lead to the variety trees
+'''
+import pandas as pd
+from sklearn import tree
+from IPython.display import Image
+from six import StringIO
+import pydotplus
+
+
+
+#------------------------------------- Load some data
+df = pd.read_csv("c:/MLCourse/PastHires.csv")
+print(df.head())
+
+# sklearn requires everything to be numerical for decision trees to work. Therefore, we should convert them to numbers.
+d = {'Y': 1, 'N': 0}
+df['Employed?'] = df['Employed?'].map(d)
+df['Hired'] = df['Hired'].map(d)
+df['Top-tier school'] = df['Top-tier school'].map(d)
+df['Interned'] = df['Interned'].map(d)
+
+d = {'BS': 0, 'MS': 1, 'PhD':2}
+df['Level of Education'] = df['Level of Education'].map(d)
+print(df.head())
+
+#-------------------------------------- Separate features to build a decision tree.
+features = list(df.columns[:6])
+Y = df['Hired']
+X = df[features]
+#-------------------------------------- Create the decision tree
+decisiontree = tree.DecisionTreeClassifier()
+decisiontree = decisiontree.fit(X, Y)
+# The gini score is basically a measure of entropy
+# value = [nohire ,hire ]
+#-------------------------------------- Visualize it
+dot_data = StringIO()
+tree.export_graphviz(decisiontree, out_file=dot_data, feature_names=features)
+graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
+Image(graph.create_png())
+
