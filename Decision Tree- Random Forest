@@ -25,6 +25,9 @@
                  Bootstrap aggregating or bagging : Randomly re-sample the input data for each tree
                  -restrict the number of attributes at each stage to minimize the entropy so that randomly choose these attributes lead to the variety trees
 '''
+
+
+
 import pandas as pd
 from sklearn import tree
 from IPython.display import Image
@@ -33,7 +36,9 @@ import pydotplus
 
 
 
-#------------------------------------- Load some data
+
+
+#--------------------------------------------------------------------------- Load some data ----------------------------------------------------------------------
 df = pd.read_csv("c:/MLCourse/PastHires.csv")
 print(df.head())
 
@@ -48,18 +53,33 @@ d = {'BS': 0, 'MS': 1, 'PhD':2}
 df['Level of Education'] = df['Level of Education'].map(d)
 print(df.head())
 
-#-------------------------------------- Separate features to build a decision tree.
+
+
+#--------------------------------------------------------------------------- Separate features to build a decision tree -------------------------------------------
 features = list(df.columns[:6])
 Y = df['Hired']
 X = df[features]
-#-------------------------------------- Create the decision tree
+
+
+#--------------------------------------------------------------------------- Create the decision tree -------------------------------------------------------------
 decisiontree = tree.DecisionTreeClassifier()
 decisiontree = decisiontree.fit(X, Y)
 # The gini score is basically a measure of entropy
 # value = [nohire ,hire ]
-#-------------------------------------- Visualize it
+
+
+#--------------------------------------------------------------------------- Visualize it--------------------------------------------------------------------------
 dot_data = StringIO()
 tree.export_graphviz(decisiontree, out_file=dot_data, feature_names=features)
 graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
 Image(graph.create_png())
 
+
+
+
+#--------------------------------------------------------------------------- Using a random forest-----------------------------------------------------------------
+
+from sklearn.ensemble import RandomForestClassifier
+
+clf = RandomForestClassifier(n_estimators=10)
+clf = clf.fit(X, Y)
