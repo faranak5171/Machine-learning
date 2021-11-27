@@ -1,0 +1,14 @@
+'''
+    Ensemble learning:
+        It just means we use multiple models to try and solve the same problem, and let them vote on the results.
+        An example is Random Forests
+        - Bagging :
+            Random Forests use bagging( bootstrap aggregating) to implement ensemble learning.
+        - Boosting :
+            It is an alternate technique. You start with a model,But each subsequent model boosts attributes that address the areas that were misclassified by previous model
+        - A bucket of models :
+            Trains several different models using training data, and picks the one that works best with the test data.
+        - Stacking :
+            runs multiple models at once on the data, and combines the results together.
+           
+'''
