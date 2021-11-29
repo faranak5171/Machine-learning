@@ -1,0 +1,94 @@
+'''
+    XGBoost (eXtreme Gradient Boosted trees)
+        - Boosting is an ensemble method. Each tree boosts attributes that led to mis-classifications of previous tree.
+    
+    XGBoost is amazing.
+        - Routinely wins Kaggle competitions
+        - Easy to use
+        - Fast
+        - A good choice for an algorithm to start with.
+    
+    Features of XGBoost
+        - Regularized boosting (prevents overfitting)
+        - Can handle missing values automatically
+            Dealing with missing values and imputing them can be a huge part of your job as a data scientist.
+        - Parallel processing
+            Run in parallel accross multiple threads.Therefore, ability to use for big data
+        - Can cross-validate at each iteration
+            Enables early stopping, finding optimal number of iterations
+        - Incremental training
+            split up the training over a period of time or across multiple batch jobs
+        - Can plug in your own optimization objectives
+        - Tree pruning
+            go very deep by default and then try to prune that tree backwards
+            
+    Using XGBoost :
+        - Uses DMatrix structure to hold features and labels
+            can create this easily from a numpy array though
+        - All parameters passed in via a dictionary
+        - Call train, then predict, 
+            
+    XGBoost Hyperprameters
+        The hard part is tuning all the following hyper parameters of XGBoost. There is a bunch of knobs and dials, to get the best results you need to choose the right settings. (done through experimentation)
+        Following hyperparameters:
+            1- Booster:
+                gbtree -> booster a tree for a classification problem
+                gblinear -> linear booster for a regression problem.
+            2- objective:
+                Choose the type of objective function:
+                    softmax -> choose one of many classifications that given the best result
+                    softprob -> gives actual probabilities for each classification
+            3- Eta (primary parameter)   
+                Eta is a learning rate, adjusts the weight at each step of training.
+                the default value is 0.3 and lowering that to 0.2 or lower will often produce better results.
+            4- Max_depth:
+                Maximum depth of the tree
+                    too small -> not creat an accurate model
+                    too large -> might end up with overfitting
+            5- Min_child_weight
+                can control overfitting, Your model is not too specific to your training data.
+                get the right balance on that.
+            6- ... Many parameters
+            
+'''
+
+# Iris data set includes the width and length of the petals and sepals of many Iris flowers, and the specific species of Iris the flower belongs to. 
+# Our challenge is to predict the species of a flower sample just based on the sizes of its petals. 
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+import xgboost as xgb
+from sklearn.metrics import accuracy_score
+
+
+
+#-------------------------------------------------------------Load data set
+iris = load_iris()
+numSamples, numSpecies = iris.data.shape
+print("Number of samples in dataset :", numSamples)
+print("Number of species in dataset :", numSpecies)
+
+#------------------------------------------------------------- Split into train/test
+
+X_train, X_test, Y_train, Y_test = train_test_split(iris.data, iris.target , train_size=0.8, random_state=0)
+
+
+#------------------------------------------------------------- Load up XGBoost and convert data into DMatrix -------------
+train = xgb.DMatrix(X_train, label=Y_train)
+test = xgb.DMatrix(X_test, label=Y_test)
+
+#define hyperparameters
+param = {
+    'max_depth': 4,
+    'eta': 0.3,
+    'objective': 'multi:softmax',
+    'num_class': 3}
+
+epochs = 10
+
+#------------------------------------------------------------- Train model
+model = xgb.train(param, train, epochs)
+predictions = model.predict(test)
+
+#------------------------------------------------------------- Measure the accuracy
+print("Accuracy is ", accuracy_score(Y_test, predictions))
