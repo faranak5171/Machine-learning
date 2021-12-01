@@ -1,0 +1,78 @@
+'''
+    SVM (Support Vector Machine):
+        Works well for classifying higher-dimensional data (lots of features)
+        Mathematically, it finds higher-dimensional support vectors across which to devide the data into different clusters.
+        These support vectors define hyperplanes.
+        Under the hood, it uses the kernel trick to find support vectors.
+        There are different kernels to use in different ways.
+        It's a supervised learning technique.
+        
+    Support Vector Classification:
+        Use SVC to classify data when using SVM.
+        Use different kernels (Linear kernel, RBF kernel, polynomial kernels,...) with SVC. Some will work better than others for a given data set.
+        
+'''
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
+from sklearn import svm, datasets
+
+
+#-------------------------------------------  Create some fake income/age clusters for N people in K clusters
+def createClusterData(n, k):
+    pointsPerCluster = float(n) / k
+    X = []
+    y = []
+    np.random.seed(2)
+    for i in range(k):
+        incomCentroid = np.random.uniform(20000, 200000)
+        ageCentroid = np.random.uniform(20.0, 70.0)
+        for j in range(int(pointsPerCluster)):
+            X.append([np.random.normal(incomCentroid, 10000), np.random.normal(ageCentroid, 2.0)])
+            y.append(i)
+    X = np.array(X)
+    y = np.array(y)
+    return X,y
+
+
+X, y = createClusterData(100, 5)
+
+#------------------------------------------------------------------- Plot figure ----------------------------------------------------------------------
+
+
+# In order for SVC to work well with poly kernels, we need to scale down the data to normally distributed range.
+# Otherwise the solution can never converge.
+scaling = MinMaxScaler(feature_range=(-1,1)).fit(X)
+X = scaling.transform(X)
+'''
+plt.Figure(figsize=(8, 6))
+plt.scatter(X[:,0], X[:,1], c=y.astype(np.float))
+plt.show()
+'''
+
+
+#------------------------------------------------------------------- Apply SVC -------------------------------------------------------------------------
+svc = svm.SVC(kernel='linear', C=1.0).fit(X, y)
+
+# By setting up a dense mesh of points in the grid and classifying all of them, we can render the regions of each cluster as distinct regions.
+def plotPredictions(clf):
+    xx, yy = np.meshgrid(np.arange(-1, 1, .001), np.arange(-1,1, .001))
+    
+    # Convert to numpy arrays by the ravel function
+    npx = xx.ravel()
+    npy = yy.ravel()
+    
+    # Convert to a list of 2D points by np.c_ underscore, a shorthand for concatenate
+    samplepoints =  np.c_[npx, npy]
+    
+    # Generate predicted labels for each point
+    Z = clf.predict(samplepoints)
+    
+    plt.figure(figsize= (8, 6))
+    Z = Z.reshape(xx.shape)
+    plt.contourf(xx, yy, Z, cmap=plt.cm.Paired, alpha=0.8)
+    plt.scatter(X[:,0], X[:,1], c=y.astype(np.float))
+    plt.show()
+    
+    
+plotPredictions(svc)
