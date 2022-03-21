@@ -13,8 +13,10 @@ end
 %Use endpoint variable to define the stop loop moving
 newCluster=c;
 endpoint=0;
-% Learning First Loop
+
 while (endpoint==0)
+    
+    % Learning First Loop
     for i=1:nData
         dmin=0;
         clusterX(i,1)=x(i,1);
