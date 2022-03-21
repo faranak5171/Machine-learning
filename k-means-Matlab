@@ -40,3 +40,4 @@ end
 
 clusterX(:,2)=c(clusterX(:,2));
 scatter(clusterX(:,1),clusterX(:,2),'b')
+
