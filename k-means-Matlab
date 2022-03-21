@@ -1,0 +1,42 @@
+
+x=input('Enter the sequence of datapoints, you shoud put them in []:');
+x=transpose(x);
+nData=size(x,1);
+clusterX=zeros(nData,2);
+k=input('Enter the number of clusters:');
+indices=randperm(size(x,1),k);
+c=zeros(1,k);
+for i=1:k
+    c(i)=x(indices(i),1);
+end
+
+%Use endpoint variable to define the stop loop moving
+newCluster=c;
+endpoint=0;
+% Learning First Loop
+while (endpoint==0)
+    for i=1:nData
+        dmin=0;
+        clusterX(i,1)=x(i,1);
+        for ci=1:k
+            d=abs(x(i,1)-c(ci));
+            if ci==1 || d<=dmin
+                clusterX(i,2)=ci;
+                dmin=d;
+            end
+        end
+    end
+
+    % Learning Second Loop
+    %move the position of the center to the mean of the points
+    newCluster=groupsummary(clusterX,clusterX(:,2),@mean);
+    if isequal(c,newCluster)
+        endpoint=1;
+    else
+        c=newCluster;
+        clusterX=zeros(nData,2);
+    end
+end
+
+clusterX(:,2)=c(clusterX(:,2));
+scatter(clusterX(:,1),clusterX(:,2),'b')
