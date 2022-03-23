@@ -1,0 +1,106 @@
+clc;
+clear all;
+close all;
+
+
+problem.varMax = 100;
+problem.varMin = -100;
+problem.nDimen = 30;
+
+params.nPop=20;
+params.nIteration = 1000;
+
+[BestCost, particles] = PSO(problem,params);
+
+
+
+
+function [BestCost, particles] = PSO(problem,params)
+
+    %% Problem Definition
+    varMax = problem.varMax;
+    varmin = problem.varMin;
+    nDimen = problem.nDimen;
+    costFunc = @(x) sphere(x);
+
+
+    %% PSO 's Parameters
+    nPop = params.nPop;
+    particleSize = [1 nDimen];
+    nIteration = params.nIteration;
+    wstart = .9;
+    wend = .4;
+    c1 = 2;
+    c2 = 2;
+
+    %% Initialization
+    oneParticle.position=[];
+    oneParticle.velocity=[];
+    oneParticle.cost=[];
+    oneParticle.best.position=[];
+    oneParticle.best.cost=[];
+
+    particles = repmat(oneParticle,nPop,1);
+    
+    globalBest.cost = inf;
+
+    %% Randomly initialize PSO
+    for i=1:nPop
+
+        particles(i).position = unifrnd(varmin,varMax,particleSize);
+        particles(i).velocity = zeros(particleSize);
+
+        particles(i).cost = costFunc(particles(i).position);
+        
+        particles(i).best.position = particles(i).position;
+        particles(i).best.cost = particles(i).cost;
+        
+        if particles(i).best.cost < globalBest.cost
+            globalBest = particles(i).best;
+        end
+    end
+
+    %% PSO update positions and velocity
+
+    BestCost = zeros(nIteration,1);
+    for it=1:nIteration
+        
+        %inertiaWeight = wstart - (wstart - wend)*(it/nIteration);
+        %inertiaWeight=wstart-(wstart-wend)*((it/nIteration)^2);
+        %inertiaWeight =wstart-(wstart-wend)*((2*it/nIteration)-((it/nIteration)^2));
+        inertiaWeight =wend*((wstart/wend)^(1/(1+(10*it)/nIteration)));
+        for i=1:nPop
+            
+            particles(i).velocity = inertiaWeight*particles(i).velocity ...
+                + c1*rand(particleSize).*(particles(i).best.position - particles(i).position) ...
+                + c2*rand(particleSize).*(globalBest.position - particles(i).position);
+
+            particles(i).position = particles(i).position + particles(i).velocity;
+
+            particles(i).cost = costFunc(particles(i).position);
+            
+            if particles(i).cost < particles(i).best.cost
+                particles(i).best.position = particles(i).position;
+                particles(i).best.cost = particles(i).cost;
+                
+                if particles(i).best.cost < globalBest.cost
+                    globalBest = particles(i).best;
+                end
+            end
+        end
+
+        
+        BestCost(it) = globalBest.cost;
+        disp(['Iteration ' num2str(it) ': Best Cost=' num2str(BestCost(it))]);
+    end
+    figure;
+semilogy(BestCost,'LineWidth',2);
+xlabel('iteration')
+ylabel('BestCost')
+end
+
+
+
+function objFunc=sphere(x)
+    objFunc=sum(x.^2);
+end
